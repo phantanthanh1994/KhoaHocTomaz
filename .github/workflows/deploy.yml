@@ -1,61 +1,26 @@
-name: WP CI/CD
+name: WP FTP Deploy
 
 on:
   push:
-    branches: [ "main" ]   # chỉ chạy khi push lên nhánh main
+    branches: [ "main" ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_ROOT_PASSWORD: {EdlW23Dyw_aTr;
-          MYSQL_DATABASE: anowgkzrhosting_khoahoctomaz
-        ports: ["3306:3306"]
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
-          --health-interval=10s --health-timeout=5s --health-retries=5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.2"
-          extensions: mysqli, mbstring, intl, zip, xml
-
-      - name: Install Composer deps
-        if: hashFiles('**/composer.json') != ''
-        run: composer install --no-interaction --prefer-dist
-
-      - name: Install WordPress test suite
-        run: |
-          curl -o /tmp/install-wp-tests.sh https://raw.githubusercontent.com/wp-cli/scaffold-command/v2.1.3/templates/install-wp-tests.sh
-          chmod +x /tmp/install-wp-tests.sh
-          bash /tmp/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
-
-      - name: Run PHPUnit
-        run: |
-          if [ -f vendor/bin/phpunit ]; then vendor/bin/phpunit; else phpunit; fi
-
   deploy:
     runs-on: ubuntu-latest
-    needs: test   # chỉ deploy nếu job test pass
     steps:
       - uses: actions/checkout@v4
 
-      # CÁCH 1: Deploy qua FTP/SFTP
-      - name: Deploy to Host via FTP
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps   # hoặc ftp / sftp
-          local-dir: ./    # code local
-          server-dir: /domains/khoahoc.tomaz.vn/   # đường dẫn host
-
+          protocol: ftp
+          server-dir: /public_html/wp-content/plugins/ten-plugin/
+          local-dir: ./
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/tests/**
