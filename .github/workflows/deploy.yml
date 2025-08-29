@@ -1,26 +1,39 @@
-name: WP FTP Deploy
+name: WordPress Full-site FTP Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ]     # deploy khi push lên main
+  workflow_dispatch:         # cho phép chạy thủ công
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Deploy via FTP
+      - name: Deploy via FTP/FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          server:   ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          server-dir: /domains/khoahoc.tomaz.vn/
-          local-dir: ./
+          protocol: ftps                 # nếu host không hỗ trợ FTPS thì đổi thành ftp
+          local-dir: ./                  # toàn bộ repo
+          server-dir: /public_html/      # ĐƯỜNG DẪN GỐC WEBSITE TRÊN HOST -> sửa cho đúng
           exclude: |
             **/.git*
             **/.github/**
+            **/.DS_Store
             **/node_modules/**
             **/tests/**
+            **/*.map
+            # KHÁ KHUYẾN NGHỊ (tránh mất media & config trên host):
+            **/wp-content/uploads/**     # không ghi đè media
+            wp-config.php                # tránh đè config host (nếu file này không nằm trong repo bạn có thể bỏ dòng này)
+          # mặc định action sẽ đồng bộ chênh lệch; KHÔNG xóa sạch thư mục đích
+          # nếu bạn muốn xóa mọi file dư trên host (nguy hiểm) thì thêm:
+          # dangerous-clean-slate: true
