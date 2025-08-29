@@ -21,9 +21,9 @@ jobs:
           server:   ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps                 # nếu host không hỗ trợ FTPS thì đổi thành ftp
-          local-dir: ./                  # toàn bộ repo
-          server-dir: /public_html/      # ĐƯỜNG DẪN GỐC WEBSITE TRÊN HOST -> sửa cho đúng
+          protocol: ftp
+          local-dir: ./
+          server-dir: /domains/khoahoc.tomaz.vn/
           exclude: |
             **/.git*
             **/.github/**
