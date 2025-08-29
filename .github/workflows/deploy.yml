@@ -17,7 +17,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
-          server-dir: /public_html/wp-content/plugins/ten-plugin/
+          server-dir: /domains/khoahoc.tomaz.vn/
           local-dir: ./
           exclude: |
             **/.git*
